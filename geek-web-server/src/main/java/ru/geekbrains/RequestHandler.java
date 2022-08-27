@@ -1,7 +1,7 @@
 package ru.geekbrains;
 
 import ru.geekbrains.http.HttpRequestHandler;
-import ru.geekbrains.http.HttpResponsePojo;
+import ru.geekbrains.http.common.HttpResponsePojo;
 import ru.geekbrains.view.ViewResolver;
 
 

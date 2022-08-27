@@ -1,5 +1,8 @@
 package ru.geekbrains.http;
 
+import ru.geekbrains.http.reader.HttpBufferedRequestReader;
+import ru.geekbrains.http.reader.HttpLoggingRequestReader;
+import ru.geekbrains.http.reader.HttpRequestReader;
 import ru.geekbrains.session.Session;
 
 import java.net.Socket;
@@ -13,11 +16,13 @@ public class HttpSession extends Session{
     private static Runnable startHttpSession(Socket socket, HttpRequestHandler requestHandler) {
         return () -> {
             try (
-                    HttpRequestReader requestReader = new HttpRequestReader(socket);
+                    HttpRequestReader requestReader = new HttpLoggingRequestReader(new HttpBufferedRequestReader(socket));
                     HttpResponseWriter responseWriter = new HttpResponseWriter(socket)
             ) {
-                String requestUrl = requestReader.readGetRequestUrl();
+                String requestUrl = requestReader.readRequest().getUrl();
                 responseWriter.sendResponse(requestHandler.requestReceived(requestUrl));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
             }
         };
     }
