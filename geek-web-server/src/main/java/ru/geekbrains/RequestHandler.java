@@ -1,61 +1,26 @@
 package ru.geekbrains;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
-import java.net.Socket;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import ru.geekbrains.http.HttpRequestHandler;
+import ru.geekbrains.http.HttpResponsePojo;
+import ru.geekbrains.view.ViewResolver;
 
-public class RequestHandler implements Runnable {
 
-    private final Socket socket;
+public class RequestHandler implements HttpRequestHandler {
 
-    private final String folder;
+    private final ViewResolver viewResolver;
 
-    public RequestHandler(Socket socket, String folder) {
-        this.socket = socket;
-        this.folder = folder;
+
+    public RequestHandler(ViewResolver viewResolver) {
+        this.viewResolver = viewResolver;
     }
 
     @Override
-    public void run() {
-        try (BufferedReader input = new BufferedReader(
-                new InputStreamReader(
-                        socket.getInputStream(), StandardCharsets.UTF_8));
-             PrintWriter output = new PrintWriter(socket.getOutputStream())
-        ) {
-            while (!input.ready());
+    public HttpResponsePojo requestReceived(String url) {
+        return resolveView(url);
+    }
 
-            String firstLine = input.readLine();
-            String[] parts = firstLine.split(" ");
-            System.out.println(firstLine);
-            while (input.ready()) {
-                System.out.println(input.readLine());
-            }
-
-            Path path = Paths.get(folder, parts[1]);
-            if (!Files.exists(path)) {
-                output.println("HTTP/1.1 404 NOT_FOUND");
-                output.println("Content-Type: text/html; charset=utf-8");
-                output.println();
-                output.println("<h1>Файл не найден!</h1>");
-                output.flush();
-                return;
-            }
-
-            output.println("HTTP/1.1 200 OK");
-            output.println("Content-Type: text/html; charset=utf-8");
-            output.println();
-
-            Files.newBufferedReader(path).transferTo(output);
-
-            System.out.println("Client disconnected!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    private HttpResponsePojo resolveView(String name) {
+        return viewResolver.resolveViewByName(name).map(HttpResponsePojo::okOf)
+                .orElse(viewResolver.resolveViewByName("not_found.html").map(HttpResponsePojo::notFoundOf).orElseThrow());
     }
 }
