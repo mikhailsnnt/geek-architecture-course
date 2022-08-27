@@ -4,37 +4,28 @@ public class HttpResponsePojo {
     private static final String DEFAULT_PROTOCOL = "HTTP/1.1";
     private static final String DEFAULT_CHARSET = "utf-8";
     private static final String DEFAULT_CONTENT_TYPE = "text/html";
-    private final String protocol;
-    private final int code;
-    private final String status;
-    private final String contentType;
-    private final String charset;
-    private final String body;
+    private String protocol = DEFAULT_PROTOCOL;
+    private int code;
+    private String status;
+    private String contentType = DEFAULT_CONTENT_TYPE;
+    private String charset = DEFAULT_CHARSET;
+    private String body;
 
-    public HttpResponsePojo(int code, String body, String status) {
-        this(code, status, DEFAULT_CONTENT_TYPE, body, DEFAULT_PROTOCOL, DEFAULT_CHARSET);
-    }
-
-    public HttpResponsePojo(int code, String status, String contentType, String body) {
-        this(code, status, contentType, body, DEFAULT_PROTOCOL, DEFAULT_CHARSET);
-    }
-
-
-    public HttpResponsePojo(int code, String status, String contentType, String body, String protocol, String charset) {
-        this.code = code;
-        this.status = status;
-        this.contentType = contentType;
-        this.body = body;
-        this.protocol = protocol;
-        this.charset = charset;
-    }
 
     public static HttpResponsePojo notFoundOf(String body) {
-        return new HttpResponsePojo(404, body, "NOT_FOUND");
+        return newBuilder()
+                .withStatusCode(404)
+                .withBody(body)
+                .withStatus("NOT_FOUND")
+                .build();
     }
 
     public static HttpResponsePojo okOf(String body) {
-        return new HttpResponsePojo(200, body, "OK");
+        return newBuilder()
+                .withStatusCode(200)
+                .withStatus("OK")
+                .withBody(body)
+                .build();
     }
 
     public String getProtocol() {
@@ -60,4 +51,49 @@ public class HttpResponsePojo {
     public String getBody() {
         return body;
     }
+
+    public static Builder newBuilder(){
+        return new Builder();
+    }
+
+    static class Builder{
+        private final HttpResponsePojo result;
+        private Builder(){
+            result = new HttpResponsePojo();
+        }
+
+        public Builder withProtocol(String protocol){
+            result.protocol = protocol;
+            return this;
+        }
+
+        public Builder withStatusCode(int code){
+            result.code = code;
+            return this;
+        }
+
+        public Builder withStatus(String status){
+            result.status = status;
+            return this;
+        }
+
+        public Builder withContentType(String contentType){
+            result.contentType = contentType;
+            return this;
+        }
+
+        public Builder withCharset(String charset){
+            result.charset = charset;
+            return this;
+        }
+        public Builder withBody(String body){
+            result.body = body;
+            return this;
+        }
+
+        public HttpResponsePojo build(){
+            return result;
+        }
+    }
+
 }

@@ -5,10 +5,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 
-public class ViewResolverImpl implements ViewResolver {
+public class LocalViewResolverImpl implements ViewResolver {
     Path baseDir;
 
-    public ViewResolverImpl(String basePath) {
+    public LocalViewResolverImpl(String basePath) {
         baseDir = Path.of(basePath);
         if(Files.notExists(baseDir))
             throw new IllegalArgumentException("Specified directory does not exist "+basePath);
