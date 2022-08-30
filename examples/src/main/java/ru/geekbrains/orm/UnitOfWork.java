@@ -2,6 +2,7 @@ package ru.geekbrains.orm;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class UnitOfWork {
 
@@ -28,6 +29,13 @@ public class UnitOfWork {
     }
 
     public void commit() {
+        performAction(newUsers, userMapper::insert);
+        performAction(updateUsers, userMapper::update);
+        performAction(deleteUsers, userMapper::delete);
+    }
 
+    private <T> void performAction(List<T> list, Consumer<T> consumer) {
+        list.forEach(consumer);
+        list.clear();
     }
 }
