@@ -1,5 +1,7 @@
 package ru.geekbrains.http;
 
+import ru.geekbrains.http.common.HttpResponsePojo;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;

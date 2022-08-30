@@ -1,6 +1,6 @@
 package ru.geekbrains.http;
 
-import ru.geekbrains.RequestHandler;
+import ru.geekbrains.handler.RequestHandlerFactory;
 import ru.geekbrains.session.Session;
 import ru.geekbrains.session.SessionFactory;
 import ru.geekbrains.view.ViewResolver;
@@ -17,6 +17,6 @@ public class HttpSessionFactory implements SessionFactory {
 
     @Override
     public Session newSession(Socket socket) {
-        return new HttpSession(socket,new RequestHandler(viewResolver));
+        return new HttpSession(socket,RequestHandlerFactory.createRequestHandlers(viewResolver));
     }
 }
