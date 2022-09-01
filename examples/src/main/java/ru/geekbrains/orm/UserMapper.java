@@ -15,11 +15,17 @@ public class UserMapper {
     private final PreparedStatement selectUser;
 
     private final Map<Long, User> identityMap = new HashMap<>();
+    private final PreparedStatement deleteUser;
+    private final PreparedStatement updateUser;
+    private final PreparedStatement insertUser;
 
     public UserMapper(Connection conn) {
         this.conn = conn;
         try {
             this.selectUser = conn.prepareStatement("select id, username, password from users where id = ?");
+            this.insertUser = conn.prepareStatement("insert into users values (?,?,?)"); //Very dummy impl))
+            this.deleteUser = conn.prepareStatement("update users set username = ? , password = ? where id =  ?");
+            this.updateUser = conn.prepareStatement("delete from users where id = ?");
         } catch (SQLException e) {
             throw new IllegalStateException(e);
         }
@@ -45,14 +51,36 @@ public class UserMapper {
     }
 
     public void update(User user) {
-
+        try {
+            updateUser.setString(1, user.getLogin());
+            updateUser.setString(2, user.getPassword());
+            updateUser.setLong(3, user.getId());
+            updateUser.executeQuery();
+            identityMap.put(user.getId(), user); //Dummy impl
+        } catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     public void insert(User user) {
-
+        try{
+            insertUser.setLong(1, user.getId()); //:( Out of time
+            insertUser.setString(2, user.getLogin());
+            insertUser.setString(3, user.getPassword());
+            identityMap.put(user.getId(),user);
+        }catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
-    public void delete(User user) {
-
+    public boolean delete(User user) {
+        try{
+            deleteUser.setLong(1, user.getId()); //:( Out of time
+            boolean successfully = deleteUser.executeUpdate() == 1;
+            identityMap.remove(user.getId());
+            return successfully;
+        }catch (SQLException e) {
+            throw new IllegalStateException(e);
+        }
     }
 }
